@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Empresa e Balanço</title>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col">
+          <h1 id="empresaNome" class="text-center mb-4">Cadastro de Empresa</h1>
+
+          <!-- Formulário de cadastro da empresa -->
+          <form id="formEmpresa" class="col-md-3 d-flex gap-3">
+            <input
+              type="text"
+              class="form-control col-md-4"
+              id="nomeEmpresa"
+              placeholder="Nome da Empresa"
+              required
+            />
+            <button type="submit" id="teste" class="btn btn-sm btn-primary">
+              Adicionar
+            </button>
+          </form>
+
+          <div id="empresaNomeExibido"></div>
+
+          <!-- Formulário de receitas e despesas -->
+          <h2 class="text-center mb-4">Cadastro de Receitas e Despesas</h2>
+          <form id="financeForm" class="mb-4" disabled>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <select id="tipo" class="form-select" required>
+                  <option value="" disabled selected>Selecione o tipo</option>
+                  <option value="receita">Receita</option>
+                  <option value="despesa">Despesa</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <input
+                  type="number"
+                  class="form-control"
+                  id="valor"
+                  placeholder="Valor"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="descricao"
+                  placeholder="Descrição"
+                />
+                <select
+                  id="despesaOpcoes"
+                  class="form-select"
+                  style="display: none"
+                >
+                  <option value="" disabled selected>
+                    Selecione a despesa
+                  </option>
+                  <option value="Imposto">Imposto</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Aluguel">Aluguel</option>
+                  <option value="Salários">Salários</option>
+                  <option value="Contas de Luz">Contas de Luz</option>
+                  <option value="Contas de Água">Contas de Água</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <select id="ativo" class="form-select">
+                  <option value="circulante">Ativo Circulante</option>
+                  <option value="naoCirculante">Ativo Não Circulante</option>
+                </select>
+              </div>
+              <div class="col-md-4 d-flex justify-content-center">
+                <button type="submit" class="btn btn-success w-100">
+                  Adicionar
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Tabela de receitas e despesas -->
+          <h2 class="text-center">Lista de Receitas e Despesas</h2>
+        <div class="table-responsive">
+          <table id="financeTable" class="table table-striped table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Tipo</th>
+                <th>Ativo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+          <!-- Resultado Balanço e DRE -->
+          <h2 class="text-center">Resultado Balanço e DRE</h2>
+        <div class="table-responsive">
+
+          <table class="table table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Ativo Circulante</th>
+                <th>Ativo Não Circulante</th>
+                <th>Saldo</th>
+                <th>Total Receitas</th>
+                <th>Total Despesas</th>
+                <th>Lucro Líquido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="resultados">
+                <td id="ativoCirculante"></td>
+                <td id="ativoNaoCirculante"></td>
+                <td id="saldo"></td>
+                <td id="totalReceitas"></td>
+                <td id="totalDespesas"></td>
+                <td id="lucroLiquido"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+          <!-- Gráfico de Balanço -->
+          <h2 class="text-center">Gráfico de Resultados</h2>
+          <canvas id="financeChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+      <p>Feito por Alexandre Pateis, trabalho final matéria de Contabilidade</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document
+        .getElementById("formEmpresa")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Impede o comportamento padrão de submissão do formulário
+
+          const nomeEmpresa = document.getElementById("nomeEmpresa");
+          const empresaNomeExibido =
+            document.getElementById("empresaNomeExibido");
+
+          // Verifica se o campo não está vazio
+          if (nomeEmpresa) {
+            // Cria um elemento para exibir o nome da empresa
+            const nomeExibido = document.createElement("p");
+            const nomeNovo = document.getElementById("empresaNome");
+
+            // Salva o nome da empresa no localStorage
+            localStorage.setItem("empresaNome", nomeEmpresa.value);
+
+            nomeNovo.innerText = `Empresa: ${nomeEmpresa.value}`;
+            empresaNomeExibido.appendChild(nomeExibido);
+
+            // Esconde o input e o botã
+            nomeEmpresa.style.display = "none";
+            event.target.querySelector("button").style.display = "none";
+          }
+        });
+      // Função para salvar dados no localStorage
+      function salvarDados(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+
+      // Função para carregar dados do localStorage
+      function carregarDados(key) {
+        return JSON.parse(localStorage.getItem(key)) || [];
+      }
+
+      const empresaForm = document.getElementById("formEmpresa");
+      const financeForm = document.getElementById("financeForm");
+      const financeTableBody = document.querySelector("#financeTable tbody");
+      const descricaoInput = document.getElementById("descricao");
+      const tipoSelect = document.getElementById("tipo");
+      const despesaOpcoes = document.getElementById("despesaOpcoes");
+      const financeChartCanvas = document
+        .getElementById("financeChart")
+        .getContext("2d");
+
+      let empresa = carregarDados("empresa");
+      let finances = carregarDados("finances");
+      let chartInstance;
+
+      // Exibe a empresa cadastrada
+      function exibirEmpresa() {
+        debugger;
+        if (empresa && empresa.length > 0) {
+          const nomeEmpresa = document.getElementById("nomeEmpresa");
+          const teste = document.getElementById("teste");
+          nomeEmpresa.style.display = "none";
+          teste.style.display = "none";
+
+          document.getElementById(
+            "empresaNome"
+          ).innerText = `Empresa: ${empresa}`;
+          financeForm.removeAttribute("disabled");
+        }
+      }
+
+      // Exibe a lista de receitas e despesas
+      function exibirFinanceiros() {
+        financeTableBody.innerHTML = "";
+        finances.forEach((item, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td>${item.descricao}</td>
+                    <td>R$ ${item.valor.toFixed(2)}</td>
+                    <td>${
+                      item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1)
+                    }</td>
+                    <td>${item.ativo.replace("Nao", "Não ")}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editarLancamento(${index})">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="excluirLancamento(${index})">Excluir</button>
+                    </td>
+                `;
+          financeTableBody.appendChild(row);
+        });
+      }
+
+      // Excluir lançamento
+      function excluirLancamento(index) {
+        finances.splice(index, 1);
+        salvarDados("finances", finances);
+        exibirFinanceiros();
+        exibirBalancoEDRE();
+      }
+
+      // Função de editar lançamentos (implementação mínima)
+      let editingIndex = null; // Variável global para armazenar o índice em edição
+
+      // Função de editar lançamentos
+      function editarLancamento(index) {
+        const item = finances[index];
+        document.getElementById("valor").value = item.valor;
+        document.getElementById("tipo").value = item.tipo;
+        document.getElementById("ativo").value = item.ativo;
+
+        // Verifica se é despesa e mostra o select correto
+        if (item.tipo === "despesa") {
+          tipoSelect.value = "despesa";
+          despesaOpcoes.style.display = "block";
+          descricaoInput.style.display = "none";
+          despesaOpcoes.value = item.descricao; // Seleciona a despesa correta no select
+        } else {
+          tipoSelect.value = "receita";
+          despesaOpcoes.style.display = "none";
+          descricaoInput.style.display = "block";
+          descricaoInput.value = item.descricao;
+        }
+
+        editingIndex = index; // Armazena o índice do item em edição
+      }
+
+      // Calcula e exibe o balanço e DRE
+      function exibirBalancoEDRE() {
+        let totalReceitas = 0;
+        let totalDespesas = 0;
+        let ativoCirculante = 0;
+        let ativoNaoCirculante = 0;
+
+        finances.forEach((item) => {
+          if (item.tipo === "receita") {
+            totalReceitas += item.valor;
+            if (item.ativo === "circulante") ativoCirculante += item.valor;
+            else ativoNaoCirculante += item.valor;
+          } else if (item.tipo === "despesa") {
+            totalDespesas += item.valor;
+          }
+        });
+
+        const saldo = totalReceitas - totalDespesas;
+        const lucroLiquido = saldo;
+
+        document.getElementById(
+          "totalReceitas"
+        ).innerText = `R$ ${totalReceitas.toFixed(2)}`;
+        document.getElementById(
+          "totalDespesas"
+        ).innerText = `R$ ${totalDespesas.toFixed(2)}`;
+        document.getElementById(
+          "ativoCirculante"
+        ).innerText = `R$ ${ativoCirculante.toFixed(2)}`;
+        document.getElementById(
+          "ativoNaoCirculante"
+        ).innerText = `R$ ${ativoNaoCirculante.toFixed(2)}`;
+        document.getElementById("saldo").innerText = `R$ ${saldo.toFixed(2)}`;
+        document.getElementById(
+          "lucroLiquido"
+        ).innerText = `R$ ${lucroLiquido.toFixed(2)}`;
+
+        atualizarGrafico([
+          ativoCirculante,
+          ativoNaoCirculante,
+          totalReceitas,
+          totalDespesas,
+          lucroLiquido,
+        ]);
+      }
+
+      // Atualiza o gráfico com os dados do balanço e DRE
+      function atualizarGrafico(dados) {
+        if (chartInstance) {
+          chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(financeChartCanvas, {
+          type: "bar",
+          data: {
+            labels: [
+              "Ativo Circulante",
+              "Ativo Não Circulante",
+              "Total Receitas",
+              "Total Despesas",
+              "Lucro Líquido",
+            ],
+            datasets: [
+              {
+                label: "Valores em R$",
+                data: dados,
+                backgroundColor: [
+                  "rgba(75, 192, 192, 0.2)",
+                  "rgba(255, 159, 64, 0.2)",
+                  "rgba(54, 162, 235, 0.2)",
+                  "rgba(255, 99, 132, 0.2)",
+                  "rgba(153, 102, 255, 0.2)",
+                ],
+                borderColor: [
+                  "rgba(75, 192, 192, 1)",
+                  "rgba(255, 159, 64, 1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(255, 99, 132, 1)",
+                  "rgba(153, 102, 255, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true },
+            },
+          },
+        });
+      }
+
+      // Cadastra a empresa e habilita o formulário de finanças
+      empresaForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const nomeEmpresa = document.getElementById("nomeEmpresa").value;
+        salvarDados("empresa", [nomeEmpresa]);
+        // Salva apenas o nome da empresa
+        exibirEmpresa();
+      });
+
+      // Salva receitas e despesas ao enviar o formulário
+      financeForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const tipo = document.getElementById("tipo").value;
+        const valor = parseFloat(document.getElementById("valor").value);
+        const descricao =
+          tipo === "despesa" ? despesaOpcoes.value : descricaoInput.value; // Ajusta a descrição para despesa
+        const ativo = document.getElementById("ativo").value;
+
+        const novaFinance = { tipo, valor, descricao, ativo };
+
+        if (editingIndex !== null) {
+          finances[editingIndex] = novaFinance; // Atualiza o item existente
+          editingIndex = null; // Reseta o índice após a edição
+        } else {
+          finances.push(novaFinance); // Adiciona novo item se não for edição
+        }
+
+        salvarDados("finances", finances);
+        exibirFinanceiros();
+        exibirBalancoEDRE();
+
+        // Reseta o formulário após o envio
+        financeForm.reset();
+        despesaOpcoes.style.display = "none";
+        descricaoInput.style.display = "block";
+      });
+
+      // Inicializar interface
+      exibirEmpresa();
+      exibirFinanceiros();
+      exibirBalancoEDRE();
+
+      // Mostrar opções específicas ao selecionar 'despesa'
+      tipoSelect.addEventListener("change", function () {
+        if (tipoSelect.value === "despesa") {
+          despesaOpcoes.style.display = "block";
+          descricaoInput.style.display = "none";
+        } else {
+          despesaOpcoes.style.display = "none";
+          descricaoInput.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
